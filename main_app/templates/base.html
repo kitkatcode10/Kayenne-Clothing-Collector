@@ -15,11 +15,12 @@
     <nav>
       <div class="nav-wrapper">
         <ul>
-          <li><a href="/" class="left brand-logo">&nbsp;&nbsp;KayenneClothingCollector</a></li>
+          <li><a href="/" class="left brand-logo">&nbsp;&nbsp; 🙌🙊🥐👋🌻🌸Kayenne Clothing Collector💃🍑✨❤️🙌🌸</a></li>
         </ul>
         <ul class="right">
-          <li><a href="/about">About</a></li>
-          <li><a href="/clothes">View All my Pieces</a></li>
+          <li><a href="{% url 'about' %}">About</a></li>
+          <li><a href="{% url 'clothes_create' %}">Add a Clothing Item</a></li>
+          <li><a href="{% url 'index' %}">View All my Pieces</a></li>
         </ul>
       </div>
     </nav>
@@ -30,7 +31,7 @@
     {% endblock %}
   </main>
   <footer class="page-footer">
-    <div class="right">All Rights Reserved, &copy; 2019 Cat Collector &nbsp;</div>
+    <div class="right">All Rights Reserved, &copy; 2021 Kayenne Clothing Collector &nbsp;</div>
   </footer>
 </body>
 </html>

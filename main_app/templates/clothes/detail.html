@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>Kayenne Clothing List</h1>
+<h1>Clothing Details</h1>
 
-{% for clothe in clothes %}
     <div class ="card">
-        <a href="{% url 'detail' clothe.id %}">
         <div class="card-content">
             <span class="card-title">{{ clothe.name}}</span>
             <p>Product: {{ clothe.productcat }}</p>
             <p>Description: {{ clothe.description }}</p>
             <p>Size: {{clothe.size }}</p>
         </div>
-        </a>
+    <div class="card-action">
+        <a href="{% url 'clothes_update' clothe.id %}">Edit</a>
+        <a href="{% url 'clothes_delete' clothe.id %}">Delete</a>
     </div>
-{% endfor %}
+    </div>
 
 {% endblock %} 

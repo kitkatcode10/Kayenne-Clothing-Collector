@@ -1,29 +1,32 @@
 from django.shortcuts import render
-
-# Add the following import
-from django.http import HttpResponse
-
-class Clothe:
-  def __init__(self, name, productcat, description, size):
-    self.name = name
-    self.productcat = productcat
-    self.description = description
-    self.size = size
-
-clothes = [
-  Clothe('The Kayenne Skort', 'Skirt', 'office skort', 'small'),
-  Clothe('Zoom Sweater', 'Sweater', 'sweater with detachable collar', 'medium'),
-  Clothe('Aperitif Tank', 'Tank Top - sleeveless top', 'frilly tank', 'small')
-]
-
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from .models import Clothe
 
 # view functions 
 
 def home(request):
-    return HttpResponse('<h1>CLOTHES!</h1>')
+    return render(request, 'home.html')
 
 def about(request):
     return render(request, 'about.html')
 
 def clothes_index(request):
+    clothes = Clothe.objects.all()
     return render(request, 'clothes/index.html', { 'clothes': clothes })
+
+def clothes_detail(request, clothe_id):
+    clothe = Clothe.objects.get(id=clothe_id)
+    return render(request, 'clothes/detail.html', { 'clothe': clothe })
+
+class ClotheCreate(CreateView):
+    model = Clothe
+    fields = '__all__'
+    success_url = '/clothes/'
+
+class ClotheUpdate(UpdateView):
+    model = Clothe
+    fields = ['product', 'description', 'size']
+
+class ClotheDelete(DeleteView):
+    model = Clothe
+    success_url = '/clothes/'
