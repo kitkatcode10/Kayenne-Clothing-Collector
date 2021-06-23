@@ -1,21 +1,33 @@
 from django.db import models
 from django.urls import reverse 
+from datetime import date 
 
 # Create your models here.
 
 
-ACCESORIES = (
+ACCESSORIES = (
   ('S', 'Shoes'),
   ('J', 'Jewellery'),
   ('H', 'Headwear'),
   ('B', 'Bag'), 
 )
 
+class Textile(models.Model): 
+    name = models.CharField(max_length=50)
+    color = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('textiles_detail', kwargs={'pk' : self.id}) 
+
 class Clothe(models.Model):
     name = models.CharField(max_length=100)
     product = models.CharField(max_length=100)
     description = models.TextField(max_length=250)
     size = models.CharField(max_length=100)
+    textiles = models.ManyToManyField(Textile) 
 
     def __str__(self):
         return self.name
@@ -23,11 +35,14 @@ class Clothe(models.Model):
     def get_absolute_url(self):
         return reverse('detail', kwargs={'clothe_id': self.id})
 
+    def accessorized_for_today(self): 
+        return self.accessorizing_set.filter(date=date.today()).count() >=len(ACCESSORIES)
+
 class Accessorizing(models.Model): 
     date = models.DateField()
     accessory = models.CharField(
         max_length=250, 
-        choices=ACCESORIES, 
+        choices=ACCESSORIES, 
         default=ACCESSORIES[0][0]   
     )
     
@@ -36,4 +51,7 @@ class Accessorizing(models.Model):
     def __str__(self):
         return f"{self.get_accessory_display()} on {self.date}"
 
+    class Meta:
+        ordering = ['-date']
   
+

@@ -9,5 +9,12 @@ urlpatterns = [
     path('clothes/create/', views.ClotheCreate.as_view(), name='clothes_create'),
     path('clothes/<int:pk>/update/', views.ClotheUpdate.as_view(), name='clothes_update'), 
     path('clothes/<int:pk>/delete/', views.ClotheDelete.as_view(), name='clothes_delete'), 
+    path('clothes/<int:clothe_id>/add_accessorizing/', views.add_accessorizing, name='add_accessorizing'),
+    path('clothes/<int:clothe_id>/assoc_textile/<int:clothe_id>/', views.assoc_textile, name='assoc_textile'), 
+    path('textiles/', views.TextileList.as_view(), name='textiles_index'),
+    path('textiles/<int:pk>/', views.TextileDetail.as_view(), name='textiles_detail'),
+    path('textiles/create/', views.TextileCreate.as_view(), name='textiles_create'),
+    path('textiles/<int:pk>/update/', views.TextileUpdate.as_view(), name='textiles_update'),
+    path('textiles/<int:pk>/delete/', views.TextileDelete.as_view(), name='textiles_delete'),
 ]
 

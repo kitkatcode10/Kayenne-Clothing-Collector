@@ -1,19 +1,122 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 
 <h1>Clothing Details</h1>
 
-    <div class ="card">
-        <div class="card-content">
-            <span class="card-title">{{ clothe.name}}</span>
-            <p>Product: {{ clothe.productcat }}</p>
-            <p>Description: {{ clothe.description }}</p>
-            <p>Size: {{clothe.size }}</p>
-        </div>
-    <div class="card-action">
+<div class="row">
+  <div class="col s6">
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">{{ clothe.name }}</span>
+        <p>Product: {{ clothe.productcat }}</p>
+        <p>Description: {{ clothe.description }}</p>
+        <p>Size: {{clothe.siave}}</p>
+      </div>
+      <div class="card-action">
         <a href="{% url 'clothes_update' clothe.id %}">Edit</a>
         <a href="{% url 'clothes_delete' clothe.id %}">Delete</a>
+      </div>
     </div>
+  </div>
+  <div class="col s6">
+    <form action="{% url 'add_accessorizing' clothe.id %}" method="post">
+      {% csrf_token %} {{ accessorizing_form.as_p }}
+      <input type="submit" class="btn" value="Add Accessory" />
+    </form>
+    <br />
+    {% if clothe.accessorized_for_today %}
+    <div class="card-panel teal-text center-align">
+      {{clothe.name}} has already been accessorized for today.
     </div>
+    {% else %}
+    <div class="card-panel red-text center-align">
+      {{clothe.name}} might look good with an acessory today!
+    </div>
+    {% endif %}
+    <table class="striped">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Accessory</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for accessorizing in clothe.accessorizing_set.all %}
+        <tr>
+          <td>{{accessorizing.date}}</td>
+          <td>{{accessorizing.get_accessory_display}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 
-{% endblock %} 
+<hr />
+<div class="row">
+  <div class="col s6">
+    <h3>{{ clothe.name }}'s Fabric Used</h3>
+    {% if clothe.textiles.count %} {% for textile in clothe.textiles.all %}
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">
+          A
+          <span style="color: {{ textile.color }}">{{ textile.color }}</span> {{
+          textile.name }}
+        </span>
+      </div>
+      <div class="card-action">
+        <form
+          action="{% url 'unassoc_textile' clothe.id textile.id %}"
+          method="post"
+        >
+          {% csrf_token %}
+          <button type="submit" class="btn">Remove</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %} {% else %}
+    <h5>No Textile Information at this time (</h5>
+    {% endif %}
+  </div>
+  <!-- Available textiles will come after this line -->
+  <div class="col s6">
+    <h3>Textiles Used</h3>
+    {% if textiles.count %} {% for textile in textiles.all %}
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">
+          A
+          <span style="color: {{ textile.color }}">{{ textile.color }}</span> {{
+          textile.name }}
+        </span>
+      </div>
+      <div class="card-action">
+        <form
+          action="{% url 'assoc_textile' clothe.id textile.id %}"
+          method="post"
+        >
+          {% csrf_token %}
+          <button type="submit" class="btn">Add</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %} {% else %}
+    <h5>{{clothe.name}} Already Showing all Materials</h5>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  var dateEl = document.getElementById("id_date");
+  M.Datepicker.init(dateEl, {
+    format: "yyyy-mm-dd",
+    defaultDate: new Date(),
+    setDefaultDate: true,
+    autoClose: true,
+  });
+
+  var selectEl = document.getElementById("id_accessory");
+  M.FormSelect.init(selectEl);
+</script>
+
+{% endblock %}
