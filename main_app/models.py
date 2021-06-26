@@ -20,7 +20,7 @@ class Textile(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('textiles_detail', kwargs={'pk' : self.id}) 
+        return reverse('textiles_detail', kwargs={'pk': self.id}) 
 
 class Clothe(models.Model):
     name = models.CharField(max_length=100)
@@ -39,7 +39,7 @@ class Clothe(models.Model):
         return self.accessorizing_set.filter(date=date.today()).count() >=len(ACCESSORIES)
 
 class Accessorizing(models.Model): 
-    date = models.DateField()
+    date = models.DateField('accessorizing date')
     accessory = models.CharField(
         max_length=250, 
         choices=ACCESSORIES, 
