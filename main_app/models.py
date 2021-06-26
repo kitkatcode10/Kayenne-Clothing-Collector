@@ -24,7 +24,7 @@ class Textile(models.Model):
 
 class Clothe(models.Model):
     name = models.CharField(max_length=100)
-    product = models.CharField(max_length=100)
+    productcat = models.CharField(max_length=100)
     description = models.TextField(max_length=250)
     size = models.CharField(max_length=100)
     textiles = models.ManyToManyField(Textile) 
@@ -53,5 +53,12 @@ class Accessorizing(models.Model):
 
     class Meta:
         ordering = ['-date']
+
+class Photo(models.Model):
+    url = models.CharField(max_length=200)
+    clothe = models.ForeignKey(Clothe, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Photo for clothe_id: {self.clothe_id} @{self.url}" 
   
 

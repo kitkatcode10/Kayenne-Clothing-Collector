@@ -1,9 +1,14 @@
 from django.shortcuts import render, redirect 
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView
-from .models import Clothe, Textile
 from .forms import AccessorizingForm
 
+import uuid
+import boto3
+from .models import Clothe, Textile, Photo 
+
+S3_BASE_URL = 'https://s3.us-west-1.amazonaws.com/'
+BUCKET = 'kayenneclothes'
 
 # view functions 
 
@@ -41,14 +46,27 @@ def unassoc_textile(request, clothe_id, textile_id):
     Clothe.objects.get(id=clothe_id).textiles.remove(textile_id)
     return redirect('detail', clothe_id=clothe_id)
 
+def add_photo(request, clothe_id):
+    photo_file = request.FILES.get('photo-file', None)
+    if photo_file: 
+        s3 = boto3.client('s3')
+        key = uuid.uuid4().hex[:6] + photo_file.name[photo_file.name.rfind('.'):]
+        try: 
+            s3.upload_fileobj(photo_file, BUCKET, key)
+            url = f"{S3_BASE_URL}{BUCKET}/{key}"
+            photo = Photo(url=url, clothe_id=clothe_id)
+            photo.save()
+        except: 
+            print('An error occured uploading file to S3')
+    return redirect('detail', clothe_id=clothe_id)
+
 class ClotheCreate(CreateView):
     model = Clothe
-    fields = '__all__'
-    success_url = '/clothes/'
+    fields = ['name', 'productcat', 'description', 'size']
 
 class ClotheUpdate(UpdateView):
     model = Clothe
-    fields = ['product', 'description', 'size']
+    fields = ['productcat', 'description', 'size']
 
 class ClotheDelete(DeleteView):
     model = Clothe
