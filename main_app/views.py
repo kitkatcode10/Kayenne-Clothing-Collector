@@ -1,11 +1,10 @@
 from django.shortcuts import render, redirect 
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView
-from .forms import AccessorizingForm
-
 import uuid
 import boto3
 from .models import Clothe, Textile, Photo 
+from .forms import AccessorizingForm
 
 S3_BASE_URL = 'https://s3.us-west-1.amazonaws.com/'
 BUCKET = 'kayenneclothes'
