@@ -6,10 +6,35 @@ import boto3
 from .models import Clothe, Textile, Photo 
 from .forms import AccessorizingForm
 
+from django.contrib.auth import login 
+from django.contrib.auth.forms import UserCreationForm 
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+
 S3_BASE_URL = 'https://s3.us-west-1.amazonaws.com/'
 BUCKET = 'kayenneclothes'
 
 # view functions 
+
+def signup(request):
+  error_message = ''
+  if request.method == 'POST':
+    # This is how to create a 'user' form object
+    # that includes the data from the browser
+    form = UserCreationForm(request.POST)
+    if form.is_valid():
+      # This will add the user to the database
+      user = form.save()
+      # This is how we log a user in via code
+      login(request, user)
+      return redirect('index')
+    else:
+      error_message = 'Invalid sign up - try again'
+  # A bad POST or a GET request, so render signup.html with an empty form
+  form = UserCreationForm()
+  context = {'form': form, 'error_message': error_message}
+  return render(request, 'registration/signup.html', context)
 
 def home(request):
     return render(request, 'home.html')
@@ -17,10 +42,12 @@ def home(request):
 def about(request):
     return render(request, 'about.html')
 
+@login_required
 def clothes_index(request):
-    clothes = Clothe.objects.all()
+    clothes = Clothe.objects.filter(user=request.user)
     return render(request, 'clothes/index.html', { 'clothes': clothes })
 
+@login_required
 def clothes_detail(request, clothe_id):
     clothe = Clothe.objects.get(id=clothe_id)
     # return render(request, 'clothes/detail.html', { 'clothe': clothe })
@@ -29,6 +56,7 @@ def clothes_detail(request, clothe_id):
     return render(request, 'clothes/detail.html', { 'clothe': clothe, 'accessorizing_form': accessorizing_form, 'textiles': textiles_clothe_doesnt_have
     })
 
+@login_required
 def add_accessorizing(request, clothe_id):
     form = AccessorizingForm(request.POST)
     if form.is_valid():
@@ -37,14 +65,17 @@ def add_accessorizing(request, clothe_id):
         new_accessorizing.save()
     return redirect('detail', clothe_id=clothe_id)
 
+@login_required
 def assoc_textile(request, clothe_id, textile_id):
     Clothe.objects.get(id=clothe_id).textiles.add(textile_id)
     return redirect('detail', clothe_id=clothe_id) 
 
+@login_required
 def unassoc_textile(request, clothe_id, textile_id):
     Clothe.objects.get(id=clothe_id).textiles.remove(textile_id)
     return redirect('detail', clothe_id=clothe_id)
 
+@login_required
 def add_photo(request, clothe_id):
     photo_file = request.FILES.get('photo-file', None)
     if photo_file: 
@@ -59,32 +90,36 @@ def add_photo(request, clothe_id):
             print('An error occured uploading file to S3')
     return redirect('detail', clothe_id=clothe_id)
 
-class ClotheCreate(CreateView):
+class ClotheCreate(LoginRequiredMixin, CreateView):
     model = Clothe
     fields = ['name', 'productcat', 'description', 'size']
 
-class ClotheUpdate(UpdateView):
+    def form_valid(self, form):
+        form.instance.user = self.request.user 
+        return super().form_valid(form)
+
+class ClotheUpdate(LoginRequiredMixin, UpdateView):
     model = Clothe
     fields = ['productcat', 'description', 'size']
 
-class ClotheDelete(DeleteView):
+class ClotheDelete(LoginRequiredMixin, DeleteView):
     model = Clothe
     success_url = '/clothes/'
 
-class TextileList(ListView):
+class TextileList(LoginRequiredMixin, ListView):
     model = Textile
 
-class TextileDetail(DetailView): 
+class TextileDetail(LoginRequiredMixin, DetailView): 
     model = Textile 
 
-class TextileCreate(CreateView):
+class TextileCreate(LoginRequiredMixin, CreateView):
     model = Textile
     fields = '__all__'
 
-class TextileUpdate(UpdateView):
+class TextileUpdate(LoginRequiredMixin, UpdateView):
     model = Textile
     fields = ['name', 'color']
 
-class TextileDelete(DeleteView): 
+class TextileDelete(LoginRequiredMixin, DeleteView): 
     model = Textile
     success_url = '/textiles/'
